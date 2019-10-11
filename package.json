@@ -1,0 +1,93 @@
+{
+  "name": "paas-deployments",
+  "version": "1.0.0",
+  "description": "GOV.UK PaaS service responsible for management of deployments.",
+  "main": "dist/app.js",
+  "engines": {
+    "node": "10.x.x",
+    "npm": "6.x.x"
+  },
+  "scripts": {
+    "build": "tsc",
+    "fix": "npm run -s fix:ts",
+    "fix:ts": "tslint -p . --fix",
+    "fix:vulnerabilities": "npm audit fix --update-binary",
+    "lint": "npm run -s lint:ts",
+    "lint:ts": "tslint --format codeFrame -p .",
+    "start": "nodemon",
+    "test": "npm run -s test:unit && npm run -s lint",
+    "test:audit": "npm audit",
+    "test:unit": "jest --coverage",
+    "test:vulnerabilities": "if npm audit | grep -E -B9999 '\\d+\\s+(high|critical)'; then npm audit; else exit 0; fi"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alphagov/paas-deployments.git"
+  },
+  "keywords": [
+    "deployments",
+    "pipelines",
+    "continuous",
+    "integration",
+    "delivery"
+  ],
+  "author": "GOV.UK PaaS Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alphagov/paas-deployments/issues"
+  },
+  "homepage": "https://github.com/alphagov/paas-deployments#readme",
+  "dependencies": {
+    "@koa/router": "^8.0.2",
+    "koa": "^2.8.2",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/expect": "^1.20.4",
+    "@types/jest": "^24.0.18",
+    "@types/koa": "^2.0.50",
+    "@types/koa__router": "^8.0.0",
+    "@types/winston": "^2.4.4",
+    "expect": "^24.9.0",
+    "jest": "^24.9.0",
+    "nodemon": "^1.19.4",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "tslint-consistent-codestyle": "^1.16.0",
+    "tslint-immutable": "^6.0.1",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "typescript": "^3.6.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "index.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "transform": {
+      "^.+\\.(ts)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "<rootDir>/src/**/*.test.+(ts|js)"
+    ]
+  }
+}
