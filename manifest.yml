@@ -1,0 +1,13 @@
+---
+applications:
+- name: paas-deployments-api
+  instances: 2
+  command: node dist/app.js
+  memory: 512M
+  buildpacks:
+  - nodejs_buildpack
+  health-check-type: http
+  health-check-http-endpoint: /healthcheck
+  routes:
+  - route: paas-deployments-api.apps.internal
+
