@@ -1,8 +1,10 @@
 import { Context } from 'koa';
 
 import { NotFound } from './errors.notfound';
+import { ValidationError } from './errors.validation';
 
 export { NotFound } from './errors.notfound';
+export { ValidationError } from './errors.validation';
 
 export async function captureErrors(ctx: Context, next: () => Promise<any>) {
   try {
@@ -20,6 +22,13 @@ export async function handleErrors(err: any, ctx: Context) {
     ctx.status = 404;
     ctx.body = { message: err.message, ...reference };
     ctx.log.debug({ message: err.message, ...reference });
+    return;
+  }
+
+  if (err instanceof ValidationError) {
+    ctx.status = 422;
+    ctx.body = { message: err.message, errors: err.errors, ...reference };
+    ctx.log.debug({ message: err.message, errors: err.errors, ...reference });
     return;
   }
 

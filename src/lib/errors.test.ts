@@ -24,6 +24,15 @@ describe('errors', () => {
     expect(ctx.body).toHaveProperty('message');
   });
 
+  it('should correctly determine 422', async () => {
+    await errors.handleErrors(new errors.ValidationError('test', []), ctx as Context);
+
+    expect(ctx.status).toEqual(422);
+    expect(ctx.body).toHaveProperty('reference');
+    expect(ctx.body).toHaveProperty('message');
+    expect(ctx.body).toHaveProperty('errors');
+  });
+
   it('should correctly determine all errors', async () => {
     await errors.handleErrors(new Error('test'), ctx as Context);
 
