@@ -4,11 +4,13 @@ import BodyParser from 'koa-bodyparser';
 import helmet from 'koa-helmet';
 
 import * as deployment from './components/deployment';
-import { getHealthcheck } from './components/healthcheck';
+import * as controllers from './controllers';
 import { captureErrors, handle, handleErrors, logger, postgres } from './lib';
 
 const app = new Koa();
 const router = new Router();
+
+router.get('healthcheck', '/healthcheck', handle(controllers.getHealthcheck));
 
 app.use(captureErrors);
 app.use(logger);
