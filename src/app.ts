@@ -3,7 +3,6 @@ import Koa from 'koa';
 import BodyParser from 'koa-bodyparser';
 import helmet from 'koa-helmet';
 
-import * as deployment from './components/deployment';
 import * as controllers from './controllers';
 import { captureErrors, handle, handleErrors, logger, postgres } from './lib';
 
@@ -11,6 +10,12 @@ const app = new Koa();
 const router = new Router();
 
 router.get('healthcheck', '/healthcheck', handle(controllers.getHealthcheck));
+
+router.get('deployment.list', '/deployments', handle(controllers.listDeployments));
+router.post('deployment.create', '/deployments', handle(controllers.postDeployment));
+router.get('deployment.obtain', '/deployments/:deploymentGUID', handle(controllers.getDeployment));
+router.put('deployment.update', '/deployments/:deploymentGUID', handle(controllers.putDeployment));
+router.delete('deployment.delete', '/deployments/:deploymentGUID', handle(controllers.deleteDeployment));
 
 app.use(captureErrors);
 app.use(logger);
