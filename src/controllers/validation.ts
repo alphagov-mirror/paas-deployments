@@ -1,4 +1,4 @@
-import { IValidationError } from '../lib';
+import { IValidationError } from '../middleware';
 import { IDeployment } from '../repository';
 
 export async function validateDeployment(data: IDeployment): Promise<ReadonlyArray<IValidationError>> {

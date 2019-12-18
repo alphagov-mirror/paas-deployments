@@ -1,6 +1,6 @@
 import { Context } from 'koa';
 
-import { IAction, NotFound, ValidationError } from '../lib';
+import { IAction, NotFound, ValidationError } from '../middleware';
 import * as repository from '../repository';
 import { generatePaginationMetadata, IPaginatedData } from './pagination';
 import { validateDeployment } from './validation';
