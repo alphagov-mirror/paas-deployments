@@ -1,4 +1,4 @@
-import { Client } from 'pg';
+import { Client, QueryResult } from 'pg';
 import { v4 as uuid } from 'uuid';
 
 import { IWithGUID, IWithTimestamps } from './entity';
@@ -22,11 +22,15 @@ interface IQuery {
   readonly space?: string;
 }
 
+interface ITotal {
+  readonly total: number;
+}
+
 const deploymentsTable = 'deployments';
 const nullGUID = 'a0000000-a000-0000-a000-a00000000000';
 
 export async function countDeployments(db: Client, filter: IQuery): Promise<number> {
-  const result = await db.query({
+  const result: QueryResult<ITotal> = await db.query({
     name: 'count-deployments',
     text: `SELECT COUNT(guid)::integer as total FROM ${deploymentsTable} WHERE "deletedAt" IS NULL AND
       ($1::uuid = '${nullGUID}' OR "organizationGUID" = $1) AND ($2::uuid = '${nullGUID}' OR "spaceGUID" = $2)`,
@@ -40,7 +44,7 @@ export async function countDeployments(db: Client, filter: IQuery): Promise<numb
 }
 
 export async function listDeployments(db: Client, filter: IQuery): Promise<ReadonlyArray<IDeploymentEntity>> {
-  const result = await db.query({
+  const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'list-deployments',
     text: `SELECT guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"
       FROM ${deploymentsTable} WHERE "deletedAt" IS NULL AND
@@ -57,7 +61,7 @@ export async function listDeployments(db: Client, filter: IQuery): Promise<Reado
 }
 
 export async function fetchDeployment(db: Client, filter: IWithGUID): Promise<IDeploymentEntity | undefined> {
-  const result = await db.query({
+  const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'fetch-deployment',
     text: `SELECT guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"
       FROM ${deploymentsTable} WHERE guid = $1 AND "deletedAt" IS NULL`,
@@ -70,7 +74,7 @@ export async function fetchDeployment(db: Client, filter: IWithGUID): Promise<ID
 export async function createDeployment(db: Client, data: IDeployment): Promise<IDeploymentEntity> {
   const guid = uuid();
 
-  const result = await db.query({
+  const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'create-deployment',
     text: `INSERT INTO ${deploymentsTable}(guid, repository, branch, trigger, "organizationGUID", "spaceGUID") VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"`,
@@ -88,7 +92,7 @@ export async function createDeployment(db: Client, data: IDeployment): Promise<I
 }
 
 export async function updateDeployment(db: Client, filter: IWithGUID, data: IDeployment): Promise<IDeploymentEntity> {
-  const result = await db.query({
+  const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'update-deployment',
     text: `UPDATE ${deploymentsTable} SET repository = $1, branch = $2, trigger = $3, "organizationGUID" = $4, "spaceGUID" = $5, "updatedAt" = $6 WHERE guid = $7
       RETURNING guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"`,
@@ -107,7 +111,7 @@ export async function updateDeployment(db: Client, filter: IWithGUID, data: IDep
 }
 
 export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<IDeploymentEntity> {
-  const result = await db.query({
+  const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'delete-deployment',
     text: `UPDATE ${deploymentsTable} SET "deletedAt" = $1 WHERE guid = $2 AND "deletedAt" IS NULL
       RETURNING guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt", "deletedAt"`,
