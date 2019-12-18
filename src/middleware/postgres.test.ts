@@ -12,7 +12,7 @@ describe('postgres', () => {
 
   beforeEach(() => { ctx = {}; });
 
-  it('should correctly setup logger', async () => {
+  it('should correctly setup postgres', async () => {
     class MyClient extends pg.Client {
       public connect = jest.fn();
       public end = jest.fn();
