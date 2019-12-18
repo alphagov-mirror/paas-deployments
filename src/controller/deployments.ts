@@ -5,14 +5,14 @@ import * as repository from '../repository';
 import { generatePaginationMetadata, IPaginatedData } from './pagination';
 import { validateDeployment } from './validation';
 
-function normalize(s: string, defaultValue: number): number {
+function fromQueryOrDefault(s: string, defaultValue: number): number {
   const i = parseInt(s, 10) || defaultValue;
   return i > 0 ? i : defaultValue;
 }
 
 export async function listDeployments(ctx: Context): Promise<IAction<IPaginatedData<repository.IDeploymentEntity>>> {
-  const current = normalize(ctx.query.page, 1);
-  const limit = normalize(ctx.query.limit, 10);
+  const current = fromQueryOrDefault(ctx.query.page, 1);
+  const limit = fromQueryOrDefault(ctx.query.limit, 10);
   const query = {
     page: current,
     limit,
