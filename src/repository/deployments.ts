@@ -1,4 +1,5 @@
 import { Client, QueryResult } from 'pg';
+import { RedisClient } from 'redis';
 import { v4 as uuid } from 'uuid';
 
 import { IWithGUID, IWithTimestamps } from './entity';
@@ -28,6 +29,7 @@ interface ITotal {
 
 const deploymentsTable = 'deployments';
 const nullGUID = 'a0000000-a000-0000-a000-a00000000000';
+const schedulerQueueName = 'queue:deployments:scheduler';
 
 export async function countDeployments(db: Client, filter: IQuery): Promise<number> {
   const result: QueryResult<ITotal> = await db.query({
@@ -71,7 +73,7 @@ export async function fetchDeployment(db: Client, filter: IWithGUID): Promise<ID
   return result.rows[0];
 }
 
-export async function createDeployment(db: Client, data: IDeployment): Promise<IDeploymentEntity> {
+export async function createDeployment(db: Client, redis: RedisClient, data: IDeployment): Promise<IDeploymentEntity> {
   const guid = uuid();
 
   const result: QueryResult<IDeploymentEntity> = await db.query({
@@ -88,10 +90,15 @@ export async function createDeployment(db: Client, data: IDeployment): Promise<I
     ],
   });
 
-  return result.rows[0];
+  const deployment = result.rows[0];
+  redis.rpush(schedulerQueueName, JSON.stringify({ action: 'create', guid: deployment.guid }));
+
+  return deployment;
 }
 
-export async function updateDeployment(db: Client, filter: IWithGUID, data: IDeployment): Promise<IDeploymentEntity> {
+export async function updateDeployment(
+  db: Client, redis: RedisClient, filter: IWithGUID, data: IDeployment,
+): Promise<IDeploymentEntity> {
   const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'update-deployment',
     text: `UPDATE ${deploymentsTable} SET repository = $1, branch = $2, trigger = $3, "organizationGUID" = $4, "spaceGUID" = $5, "updatedAt" = $6 WHERE guid = $7
@@ -107,10 +114,15 @@ export async function updateDeployment(db: Client, filter: IWithGUID, data: IDep
     ],
   });
 
-  return result.rows[0];
+  const deployment = result.rows[0];
+  redis.rpush(schedulerQueueName, JSON.stringify({ action: 'update', guid: deployment.guid }));
+
+  return deployment;
 }
 
-export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<IDeploymentEntity> {
+export async function deleteDeployment(
+  db: Client, redis: RedisClient, filter: IWithGUID,
+): Promise<IDeploymentEntity | undefined> {
   const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'delete-deployment',
     text: `UPDATE ${deploymentsTable} SET "deletedAt" = $1 WHERE guid = $2 AND "deletedAt" IS NULL
@@ -125,6 +137,8 @@ export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<I
   if (!deployment) {
     return;
   }
+
+  redis.rpush(schedulerQueueName, JSON.stringify({ action: 'delete', guid: deployment.guid }));
 
   return deployment;
 }

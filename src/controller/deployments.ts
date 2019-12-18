@@ -63,7 +63,7 @@ export async function postDeployment(ctx: Context): Promise<IAction<repository.I
 
   return {
     status: 202,
-    body: await repository.createDeployment(ctx.db, deployment),
+    body: await repository.createDeployment(ctx.db, ctx.redis, deployment),
   };
 }
 
@@ -87,12 +87,12 @@ export async function putDeployment(ctx: Context): Promise<IAction<repository.ID
 
   return {
     status: 200,
-    body: await repository.updateDeployment(ctx.db, { guid: ctx.params.deploymentGUID }, deployment),
+    body: await repository.updateDeployment(ctx.db, ctx.redis, { guid: ctx.params.deploymentGUID }, deployment),
   };
 }
 
 export async function deleteDeployment(ctx: Context): Promise<IAction<repository.IDeploymentEntity>> {
-  const deployment = await repository.deleteDeployment(ctx.db, { guid: ctx.params.deploymentGUID });
+  const deployment = await repository.deleteDeployment(ctx.db, ctx.redis, { guid: ctx.params.deploymentGUID });
 
   if (!deployment) {
     throw new NotFound('Deployment not found');

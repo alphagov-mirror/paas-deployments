@@ -14,6 +14,7 @@ describe('deployment actions', () => {
   describe('obtain single entity', () => {
     interface IContext {
       db?: any;
+      redis?: any;
       params?: {deploymentGUID: string};
     }
 
@@ -28,6 +29,7 @@ describe('deployment actions', () => {
             },
           ]),
         },
+        redis: { rpush: jest.fn() },
         params: {
           deploymentGUID: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
         },
@@ -43,6 +45,7 @@ describe('deployment actions', () => {
     it('should respond with status Not Found', async () => {
       const ctx: IContext = {
         db: { query: fakeQuery([]) },
+        redis: { rpush: jest.fn() },
         params: {
           deploymentGUID: 'not-found',
         },
@@ -55,6 +58,7 @@ describe('deployment actions', () => {
   describe('obtain list of entities', () => {
     interface IContext {
       db?: any;
+      redis?: any,
       query: {[key: string]: any};
       router: {
         url: (name: string, params: object, data: object) => string;
@@ -87,6 +91,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         query: {
           limit: 10,
           page: 2,
@@ -135,6 +140,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         query: {
           limit: 2,
           page: 2,
@@ -172,6 +178,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         query: {
           page: 3,
         },
@@ -202,6 +209,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         query: { page: -5 },
         router: { url: () => '' },
       };
@@ -224,6 +232,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         query: { limit: -10 },
         router: { url: () => '' },
       };
@@ -240,6 +249,7 @@ describe('deployment actions', () => {
   describe('create new entity', () => {
     interface IContext {
       db?: any;
+      redis?: any;
       request?: {body: IDeployment | object};
     }
 
@@ -260,6 +270,7 @@ describe('deployment actions', () => {
             },
           ]),
         },
+        redis: { rpush: jest.fn() },
         request: {
           body: {
             repository: 'https://example.com/',
@@ -292,6 +303,7 @@ describe('deployment actions', () => {
   describe('update entity', () => {
     interface IContext {
       db?: any;
+      redis?: any;
       request?: {body: IDeployment | object};
       params?: {deploymentGUID: string};
     }
@@ -334,6 +346,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         request: {
           body: {
             repository: 'https://example.net/',
@@ -370,6 +383,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         request: {
           body: {
             repository: 'https://example.net/',
@@ -400,6 +414,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         request: {
           body: {},
         },
@@ -415,6 +430,7 @@ describe('deployment actions', () => {
   describe('delete entity', () => {
     interface IContext {
       db?: any;
+      redis?: any;
       params?: {deploymentGUID: string};
     }
 
@@ -423,8 +439,8 @@ describe('deployment actions', () => {
         db: {
           query: (q: QueryConfig): QueryResult => {
             switch (q.name) {
-              case 'fetch-deployment':
-                return { command: '', oid: 0, fields: [], rowCount: 2, rows: [
+              default:
+                return {command: '', oid: 0, fields: [], rowCount: 0, rows: [
                   {
                     guid: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
                     repository: 'https://example.net/',
@@ -436,12 +452,12 @@ describe('deployment actions', () => {
                     updatedAt: new Date(),
                     deletedAt: null,
                   },
-                ]};
-              default:
-                return {command: '', fields: [], rowCount: 0, rows: [], oid: 0};
+                ],
+              };
             }
           },
         },
+        redis: { rpush: jest.fn() },
         params: {
           deploymentGUID: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
         },
@@ -479,6 +495,7 @@ describe('deployment actions', () => {
             }
           },
         },
+        redis: { rpush: jest.fn() },
         params: {
           deploymentGUID: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
         },
