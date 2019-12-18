@@ -92,11 +92,11 @@ export async function putDeployment(ctx: Context): Promise<IAction<repository.ID
 }
 
 export async function deleteDeployment(ctx: Context): Promise<IAction<repository.IDeploymentEntity>> {
-  if (await repository.fetchDeployment(ctx.db, { guid: ctx.params.deploymentGUID }) === undefined) {
+  const deployment = await repository.deleteDeployment(ctx.db, { guid: ctx.params.deploymentGUID });
+
+  if (!deployment) {
     throw new NotFound('Deployment not found');
   }
-
-  await repository.deleteDeployment(ctx.db, { guid: ctx.params.deploymentGUID });
 
   return {
     status: 204,

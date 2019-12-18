@@ -109,7 +109,7 @@ export async function updateDeployment(db: Client, filter: IWithGUID, data: IDep
 export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<IDeploymentEntity> {
   const result = await db.query({
     name: 'delete-deployment',
-    text: `UPDATE ${deploymentsTable} SET "deletedAt" = $1 WHERE guid = $2
+    text: `UPDATE ${deploymentsTable} SET "deletedAt" = $1 WHERE guid = $2 AND "deletedAt" IS NULL
       RETURNING guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt", "deletedAt"`,
     values: [
       new Date(),
@@ -117,5 +117,10 @@ export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<I
     ],
   });
 
-  return result.rows[0];
+  const deployment = result.rows[0];
+  if (!deployment) {
+    return;
+  }
+
+  return deployment;
 }
