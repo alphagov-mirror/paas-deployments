@@ -8,7 +8,7 @@
     "npm": "6.x.x"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "fix": "npm run -s fix:ts",
     "fix:ts": "tslint -p . --fix",
     "fix:vulnerabilities": "npm audit fix --update-binary",
@@ -17,7 +17,7 @@
     "migration:build": "tsc --sourceMap false --outDir dist/database src/migrations/*.ts --esModuleInterop",
     "migration:create": "node-pg-migrate -j ts -m src/migrations create",
     "migration:up": "npm run migration:build && node-pg-migrate -t migrations -m dist/database/migrations up",
-    "you:probably:do:not:want:to:migrate:down": "npm run migration:build && node-pg-migrate -t migrations -m dist/database/migrations down",
+    "migration:down:is:probably:not:what:you:want": "npm run migration:build && node-pg-migrate -t migrations -m dist/database/migrations down",
     "start": "nodemon",
     "test": "npm run -s test:unit && npm run -s lint",
     "test:audit": "npm audit",
