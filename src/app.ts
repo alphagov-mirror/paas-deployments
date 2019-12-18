@@ -3,7 +3,7 @@ import Koa from 'koa';
 import BodyParser from 'koa-bodyparser';
 import helmet from 'koa-helmet';
 
-import * as controllers from './controllers';
+import * as controllers from './controller';
 import { captureErrors, handle, handleErrors, logger, postgres } from './middleware';
 
 const app = new Koa();
