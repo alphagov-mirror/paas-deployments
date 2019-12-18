@@ -47,6 +47,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-helmet": "^5.2.0",
     "pg": "^7.15.0",
+    "redis": "^2.8.0",
     "uuid": "^3.3.3",
     "winston": "^3.2.1"
   },
@@ -58,6 +59,7 @@
     "@types/koa-helmet": "^3.1.2",
     "@types/koa__router": "^8.0.2",
     "@types/pg": "^7.11.2",
+    "@types/redis": "^2.8.14",
     "@types/uuid": "^3.4.6",
     "@types/winston": "^2.4.4",
     "expect": "^24.9.0",

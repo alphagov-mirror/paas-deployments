@@ -4,7 +4,7 @@ import BodyParser from 'koa-bodyparser';
 import helmet from 'koa-helmet';
 
 import * as controllers from './controller';
-import { captureErrors, handle, handleErrors, logger, postgres } from './middleware';
+import { captureErrors, handle, handleErrors, logger, postgres, redis } from './middleware';
 
 const app = new Koa();
 const router = new Router();
@@ -20,6 +20,7 @@ router.delete('deployment.delete', '/deployments/:deploymentGUID', handle(contro
 app.use(captureErrors);
 app.use(logger);
 app.use(postgres);
+app.use(redis);
 app.use(helmet());
 app.use(BodyParser({enableTypes: ['json']}));
 
