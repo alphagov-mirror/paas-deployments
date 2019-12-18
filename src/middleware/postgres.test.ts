@@ -4,6 +4,7 @@ import pg from 'pg';
 import { postgres } from './postgres';
 
 describe('postgres', () => {
+  process.env.DATABASE_URL = 'postgres://';
   let ctx: {
     status?: number;
     db?: any,
