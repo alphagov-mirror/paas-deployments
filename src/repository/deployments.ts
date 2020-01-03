@@ -21,6 +21,7 @@ interface IQuery {
   readonly page: number;
   readonly organization?: string;
   readonly space?: string;
+  readonly updatedAfter?: number;
 }
 
 interface ITotal {
@@ -33,11 +34,12 @@ const nullGUID = 'a0000000-a000-0000-a000-a00000000000';
 export async function countDeployments(db: Client, filter: IQuery): Promise<number> {
   const result: QueryResult<ITotal> = await db.query({
     name: 'count-deployments',
-    text: `SELECT COUNT(guid)::integer as total FROM ${deploymentsTable} WHERE "deletedAt" IS NULL AND
+    text: `SELECT COUNT(guid)::integer as total FROM ${deploymentsTable} WHERE "deletedAt" IS NULL AND "updatedAt" > $3 AND
       ($1::uuid = '${nullGUID}' OR "organizationGUID" = $1) AND ($2::uuid = '${nullGUID}' OR "spaceGUID" = $2)`,
     values: [
       filter.organization || nullGUID,
       filter.space || nullGUID,
+      filter.updatedAfter || 0,
     ],
   });
 
@@ -48,13 +50,14 @@ export async function listDeployments(db: Client, filter: IQuery): Promise<Reado
   const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'list-deployments',
     text: `SELECT guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"
-      FROM ${deploymentsTable} WHERE "deletedAt" IS NULL AND
+      FROM ${deploymentsTable} WHERE "deletedAt" IS NULL AND "updatedAt" > $5 AND
       ($1::uuid = '${nullGUID}' OR "organizationGUID" = $1) AND ($2::uuid = '${nullGUID}' OR "spaceGUID" = $2) LIMIT $3 OFFSET $4`,
     values: [
       filter.organization || nullGUID,
       filter.space || nullGUID,
       filter.limit,
       (filter.page - 1) * filter.limit,
+      filter.updatedAfter || 0,
     ],
   });
 

@@ -18,6 +18,7 @@ export async function listDeployments(ctx: Context): Promise<IAction<IPaginatedD
     limit,
     organization: ctx.query.organization,
     space: ctx.query.space,
+    updatedAfter: ctx.query.since,
   };
 
   const [results, deployments] = await Promise.all([
