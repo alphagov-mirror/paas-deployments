@@ -301,20 +301,6 @@ describe('deployment actions', () => {
         db: {
           query: (q: QueryConfig): QueryResult => {
             switch (q.name) {
-              case 'fetch-deployment':
-                return { command: '', oid: 0, fields: [], rowCount: 2, rows: [
-                  {
-                    guid: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
-                    repository: 'https://example.net/',
-                    branch: null,
-                    trigger: 'manual',
-                    organizationGUID: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
-                    spaceGUID: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    deletedAt: null,
-                  },
-                ]};
               case 'update-deployment':
                   return { command: '', oid: 0, fields: [], rowCount: 2, rows: [
                     {
@@ -361,10 +347,8 @@ describe('deployment actions', () => {
         db: {
           query: (q: QueryConfig): QueryResult => {
             switch (q.name) {
-              case 'fetch-deployment':
-                return { command: '', oid: 0, fields: [], rowCount: 2, rows: []};
               case 'update-deployment':
-                throw new Error('not expected');
+                return { command: '', oid: 0, fields: [], rowCount: 0, rows: []};
               default:
                 throw new Error('not expected');
             }
@@ -391,8 +375,6 @@ describe('deployment actions', () => {
         db: {
           query: (q: QueryConfig): QueryResult => {
             switch (q.name) {
-              case 'fetch-deployment':
-                throw new Error('not expected');
               case 'update-deployments':
                 throw new Error('not expected');
               default:
@@ -423,7 +405,7 @@ describe('deployment actions', () => {
         db: {
           query: (q: QueryConfig): QueryResult => {
             switch (q.name) {
-              case 'fetch-deployment':
+              case 'delete-deployment':
                 return { command: '', oid: 0, fields: [], rowCount: 2, rows: [
                   {
                     guid: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
@@ -456,28 +438,7 @@ describe('deployment actions', () => {
     it('should respond with Not Found', async () => {
       const ctx: IContext = {
         db: {
-          query: (q: QueryConfig): QueryResult => {
-            switch (q.name) {
-              case 'list-deployments':
-                return { command: '', oid: 0, fields: [], rowCount: 2, rows: [
-                  {
-                    guid: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',
-                    repository: 'https://example.com/',
-                    trigger: 'manual',
-                  },
-                  {
-                    guid: 'bb111b1b-b111-111b-bb11-b1b11b1b1b11',
-                    repository: 'https://example.com/',
-                    branch: 'master',
-                    trigger: 'branch',
-                  },
-                ]};
-              case 'count-deployments':
-                return {command: '', fields: [], rowCount: 1, rows: [{ total: 12 }], oid: 0};
-              default:
-                return {command: '', fields: [], rowCount: 0, rows: [], oid: 0};
-            }
-          },
+          query: (_q: QueryConfig): QueryResult => ({command: '', fields: [], rowCount: 0, rows: [], oid: 0}),
         },
         params: {
           deploymentGUID: 'aa000a0a-a000-000a-aa00-a0a00a0a0a00',

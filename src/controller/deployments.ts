@@ -68,7 +68,7 @@ export async function postDeployment(ctx: Context): Promise<IAction<repository.I
 }
 
 export async function putDeployment(ctx: Context): Promise<IAction<repository.IDeploymentEntity>> {
-  const deployment: repository.IDeployment = {
+  const deploymentData: repository.IDeployment = {
     repository: ctx.request.body.repository || '',
     branch: ctx.request.body.branch || 'master',
     trigger: ctx.request.body.trigger || 'manual',
@@ -76,18 +76,19 @@ export async function putDeployment(ctx: Context): Promise<IAction<repository.ID
     spaceGUID: ctx.request.body.spaceGUID || '',
   };
 
-  const validationErrors = await validateDeployment(deployment);
+  const validationErrors = await validateDeployment(deploymentData);
   if (validationErrors.length > 0) {
     throw new ValidationError('Invalid payload provided', validationErrors);
   }
 
-  if (await repository.fetchDeployment(ctx.db, { guid: ctx.params.deploymentGUID }) === undefined) {
+  const deployment = await repository.updateDeployment(ctx.db, { guid: ctx.params.deploymentGUID }, deploymentData);
+  if (!deployment) {
     throw new NotFound('Deployment not found');
   }
 
   return {
     status: 200,
-    body: await repository.updateDeployment(ctx.db, { guid: ctx.params.deploymentGUID }, deployment),
+    body: deployment,
   };
 }
 

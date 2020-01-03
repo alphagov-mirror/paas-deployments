@@ -14,6 +14,7 @@ export interface IDeployment {
 }
 
 export interface IDeploymentEntity extends IWithGUID, IDeployment, IWithTimestamps {}
+type Deployment = IDeploymentEntity | undefined;
 
 interface IQuery {
   readonly limit: number;
@@ -60,7 +61,7 @@ export async function listDeployments(db: Client, filter: IQuery): Promise<Reado
   return result.rows;
 }
 
-export async function fetchDeployment(db: Client, filter: IWithGUID): Promise<IDeploymentEntity | undefined> {
+export async function fetchDeployment(db: Client, filter: IWithGUID): Promise<Deployment> {
   const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'fetch-deployment',
     text: `SELECT guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"
@@ -91,10 +92,10 @@ export async function createDeployment(db: Client, data: IDeployment): Promise<I
   return result.rows[0];
 }
 
-export async function updateDeployment(db: Client, filter: IWithGUID, data: IDeployment): Promise<IDeploymentEntity> {
+export async function updateDeployment(db: Client, filter: IWithGUID, data: IDeployment): Promise<Deployment> {
   const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'update-deployment',
-    text: `UPDATE ${deploymentsTable} SET repository = $1, branch = $2, trigger = $3, "organizationGUID" = $4, "spaceGUID" = $5, "updatedAt" = $6 WHERE guid = $7
+    text: `UPDATE ${deploymentsTable} SET repository = $1, branch = $2, trigger = $3, "organizationGUID" = $4, "spaceGUID" = $5, "updatedAt" = $6 WHERE guid = $7 AND "deletedAt" IS NULL
       RETURNING guid, repository, branch, trigger, "organizationGUID", "spaceGUID", "createdAt", "updatedAt"`,
     values: [
       data.repository,
@@ -110,7 +111,7 @@ export async function updateDeployment(db: Client, filter: IWithGUID, data: IDep
   return result.rows[0];
 }
 
-export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<IDeploymentEntity> {
+export async function deleteDeployment(db: Client, filter: IWithGUID): Promise<Deployment> {
   const result: QueryResult<IDeploymentEntity> = await db.query({
     name: 'delete-deployment',
     text: `UPDATE ${deploymentsTable} SET "deletedAt" = $1 WHERE guid = $2 AND "deletedAt" IS NULL
